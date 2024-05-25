@@ -60,6 +60,7 @@ public class PawnSelectionOverlay {
     public void update(){
     }
     public void keyPressed(KeyEvent e) {
+        if(pawnSelected == false){
         switch (e.getKeyCode()) {
             case KeyEvent.VK_1:
                 updatePawnsCollection(0);
@@ -86,6 +87,7 @@ public class PawnSelectionOverlay {
             default:
                 break;
             }
+        }
     }
 
     public void draw(Graphics g) {

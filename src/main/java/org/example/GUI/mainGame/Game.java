@@ -38,10 +38,10 @@ public class Game implements Runnable {
         playing = new Playing(this);
 
         players = new ArrayList<>(4);
-        Player P1 = new Player("Jhon",new int[]{3, 2, 2, 1, 1, 1},ROUGE);
-        Player P2 = new Player("Player2",new int[]{3, 2, 2, 1, 1, 1},BLEU);
-        Player P3 = new Player("Player3",new int[]{3, 2, 2, 1, 1, 1},JAUNE);
-        Player P4 = new Player("Player4",new int[]{3, 2, 2, 1, 1, 1},VERT);
+            Player P1 = new Player("Jhon",new int[]{3, 2, 2, 1, 1, 1},ROUGE);
+            Player P2 = new Player("Player2",new int[]{3, 2, 2, 1, 1, 1},BLEU);
+            Player P3 = new Player("Player3",new int[]{3, 2, 2, 1, 1, 1},JAUNE);
+            Player P4 = new Player("Player4",new int[]{3, 2, 2, 1, 1, 1},VERT);
         players.add(P1);
         players.add(P2);
         players.add(P3);

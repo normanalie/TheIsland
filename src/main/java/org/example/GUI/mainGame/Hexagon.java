@@ -20,7 +20,7 @@ public class Hexagon {
     private BufferedImage tuilePlage;
     private BufferedImage tuileForet;
     private BufferedImage tuileMontagne;
-    private ArrayList<Pion> pions;
+    private Pion pion = null;
 
     private Game game;
 
@@ -34,7 +34,6 @@ public class Hexagon {
         this.radius = radius;
         this.type = Type.valueOf(type.toUpperCase());
         this.polygon = createHexagon(x, y, radius);
-        this.pions = new ArrayList<Pion>();
         loadImages();
     }
 
@@ -146,28 +145,33 @@ public class Hexagon {
     }
 
     public void addPawnToHexagon(Pion pion) {
-        pions.add(pion);
+        if(this.pion == null){
+            this.pion = pion;
+        }
+
     }
 
     private void drawPawns(Graphics2D g) {
         int offsetX = 0;
         int offsetY = 0;
         int step = 20;
-
-        for (Pion pion : pions) {
-            BufferedImage pionImage = getPionImage(pion);
-            if (pionImage != null) {
-                g.drawImage(pionImage, this.x - pionImage.getWidth() / 2 - offsetX, this.y - pionImage.getHeight() / 2 - offsetY, null);
+            if(pion!=null) {
+                BufferedImage pionImage = getPionImage(pion);
+                if (pionImage != null) {
+                    g.drawImage(pionImage, this.x - pionImage.getWidth() / 2 - offsetX, this.y - pionImage.getHeight() / 2 - offsetY, null);
+                }
+                offsetX += step;
+                offsetY += step;
+                if (offsetX > radius) offsetX = 0;
+                if (offsetY > radius) offsetY = 0;
             }
-            offsetX += step;
-            offsetY += step;
-            if (offsetX > radius) offsetX = 0;
-            if (offsetY > radius) offsetY = 0;
-        }
     }
 
     public int getX() {
         return x;
+    }
+    public Pion getPion(){
+        return this.pion;
     }
 
     public int getY() {

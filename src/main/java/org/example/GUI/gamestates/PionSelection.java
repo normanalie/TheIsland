@@ -124,13 +124,13 @@ public class PionSelection extends State implements StateInterface {
 
     public BufferedImage getPionImage(){
         switch (game.getCurrentPlayer().getColor()){
-            case Color.ROUGE :
+            case ROUGE :
                 return pionRougeImage;
-            case Color.BLEU:
+            case BLEU:
                 return pionBleuImage;
-            case Color.JAUNE:
+            case JAUNE:
                 return pionJauneImage;
-            case Color.VERT:
+            case VERT:
                 return pionVertImage;
             default:
                 return null;
@@ -166,10 +166,11 @@ public class PionSelection extends State implements StateInterface {
 
         for (Hexagon hex : hexagons) {
             if (isPointInsideHexagon(mouseX, mouseY, hex) && pawnSelectionOverlay.getPawnSelected()) {
-                handleHexagonClick(hex);
-                pawnSelectionOverlay.setPawnSelected(false);
-                game.nextTurn();
-                break;
+                if(handleHexagonClick(hex) != 0) {
+                    pawnSelectionOverlay.setPawnSelected(false);
+                    game.nextTurn();
+                    break;
+                }
             }
         }
     }
@@ -179,8 +180,13 @@ public class PionSelection extends State implements StateInterface {
     }
 
     /// SHOULD CHANGE THIS LATER
-    private void handleHexagonClick(Hexagon hex) {
-       hex.addPawnToHexagon(new Pion(game.getCurrentPlayer().getColor(),1));
+    private int handleHexagonClick(Hexagon hex) {
+        if(hex.getPion() == null) {
+            hex.addPawnToHexagon(new Pion(game.getCurrentPlayer().getColor(),1));
+            return 1;
+        }
+        return 0;
+
     }
 
 
