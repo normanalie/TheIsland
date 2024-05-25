@@ -2,21 +2,17 @@ package org.example.GUI.gamestates;
 
 import org.example.GUI.mainGame.Game;
 import org.example.GUI.mainGame.Hexagon;
-import org.example.GUI.mainGame.Matrice;
-import org.example.Logic.Model.Pion;
-import org.example.GUI.ui.PawnSelectionOverlay;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.awt.geom.Point2D.distance;
 
-public class PionSelection extends State implements StateInterface {
+public class MoveElement extends State implements StateInterface {
     private BufferedImage backgroundImage;
     private BufferedImage pionRougeImage;
     private BufferedImage pionBleuImage;
@@ -31,39 +27,19 @@ public class PionSelection extends State implements StateInterface {
     private boolean gridGenerated = false;
 
 
-    private PawnSelectionOverlay pawnSelectionOverlay;
-    public PionSelection(Game game) {
+
+    public MoveElement(Game game) {
         super(game);
         initClasses();
         loadImages();
-        hexagons = new ArrayList<>();
-        generateHexagonGrid();
-        System.out.println("Succesfuly init PionSelection");
+        System.out.println("Succesfuly init Playing Game");
     }
 
-    private void generateHexagonGrid() {
-        hexagons.clear();
-        int xOffset = (int) (radius * 1.71);
-        int yOffset = (int) (radius * 1.5);
-
-        Matrice matrice = new Matrice(13);
-        int windowStart = 270;
-        int startY = radius;
-
-        for (int row = 0; row < rows; row++) {
-            int startX = getStartX(row, windowStart, xOffset);
-            int currentCols = getCurrentCols(row);
-
-            for (int col = 0; col < currentCols; col++) {
-                int x = startX + xOffset * col + (row % 2) * (xOffset / 2);
-                int y = startY + yOffset * row;
-                String type = getHexagonType(matrice.matrix[row][col]);
-                hexagons.add(new Hexagon(x, y, radius, type));
-            }
-        }
-
-        gridGenerated = true;
+    public void setHexagons(List<Hexagon>hexagons){
+        this.hexagons = hexagons;
     }
+
+
 
     private int getStartX(int row, int windowStart, int xOffset) {
         if (row == 0 || row == rows - 1) {
@@ -102,10 +78,8 @@ public class PionSelection extends State implements StateInterface {
 
     @Override
     public void update() {
-        pawnSelectionOverlay.update();
     }
     private void initClasses() {
-        this.pawnSelectionOverlay = new PawnSelectionOverlay(this,game);
     }
 
     private void loadImages() {
@@ -148,15 +122,8 @@ public class PionSelection extends State implements StateInterface {
             hex.draw(g2d);
         }
 
-        if (!pawnSelectionOverlay.getPawnSelected()) {
-            pawnSelectionOverlay.draw(g);
-        }
-        else {
-            BufferedImage pionImage = getPionImage();
-            g.drawImage(pionImage, (int) xDelta, (int) yDelta, 40, 20, null);
-            }
 
-        }
+    }
 
 
     @Override
@@ -165,12 +132,9 @@ public class PionSelection extends State implements StateInterface {
         int mouseY = e.getY();
 
         for (Hexagon hex : hexagons) {
-            if (isPointInsideHexagon(mouseX, mouseY, hex) && pawnSelectionOverlay.getPawnSelected()) {
-                if(handleHexagonClick(hex) != 0) {
-                    pawnSelectionOverlay.setPawnSelected(false);
-                    game.nextTurn();
-                    break;
-                }
+            if (isPointInsideHexagon(mouseX, mouseY, hex) ) {
+                handleHexagonClick(hex);
+                break;
             }
         }
     }
@@ -180,13 +144,7 @@ public class PionSelection extends State implements StateInterface {
     }
 
     /// SHOULD CHANGE THIS LATER
-    private int handleHexagonClick(Hexagon hex) {
-        if(hex.getListPion().isEmpty()) {
-            hex.addPawnToHexagon(new Pion(game.getCurrentPlayer().getColor(),1));
-            return 1;
-        }
-        return 0;
-
+    private void handleHexagonClick(Hexagon hex) {
     }
 
 
@@ -211,11 +169,5 @@ public class PionSelection extends State implements StateInterface {
         this.yDelta = y;
     }
 
-    public PawnSelectionOverlay getPawnSelectionOverlay() {
-        return pawnSelectionOverlay;
-    }
 
-    public List<Hexagon> getHexagons() {
-        return this.hexagons;
-    }
 }
