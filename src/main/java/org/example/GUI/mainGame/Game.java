@@ -6,6 +6,7 @@ import org.example.GUI.gamestates.PionSelection;
 import org.example.GUI.gamestates.Playing;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.example.GUI.gamestates.Color.*;
@@ -25,7 +26,7 @@ public class Game implements Runnable {
     private int currentPlayerIndex;
 
 
-    public Game() {
+    public Game() throws IOException {
         initClasses();
         gamePanel = new GamePanel(this);
         gameWindow = new GameWindow(gamePanel);
@@ -33,7 +34,8 @@ public class Game implements Runnable {
         gamePanel.requestFocus();
         startGameLoop();
     }
-    private void initClasses() {
+
+    private void initClasses() throws IOException {
         pionSelection = new PionSelection(this);
         playing = new Playing(this);
 
@@ -54,20 +56,31 @@ public class Game implements Runnable {
         GameState.state = GameState.PLAYING;
         System.out.println("Game Started !!");
         playing.setHexagons(pionSelection.getHexagons());
+
+
     }
+
+    public Playing getPlaying(){
+        return this.playing;
+    }
+
     public Player getCurrentPlayer() {
+
         return players.get(currentPlayerIndex);
     }
 
     public void nextTurn() {
+
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
     public GameState getCurrentState() {
+
         return GameState.state;
     }
 
     public void setCurrentState(GameState currentState) {
-       GameState.state  = currentState;
+
+        GameState.state  = currentState;
     }
 
     public void render(Graphics g) {

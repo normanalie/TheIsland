@@ -13,9 +13,12 @@ public class GamePanel extends JPanel {
     private MouseInputs mouseInputs;
 
     private Game game;
+
     public GamePanel(Game game) {
         this.game = game;
+
         mouseInputs = new MouseInputs(this);
+
         setPanelSize();
         addKeyListener(new KeyboardInputs(this));
         addMouseListener(mouseInputs);
@@ -23,8 +26,6 @@ public class GamePanel extends JPanel {
         setFocusable(true);
         requestFocusInWindow();
     }
-
-
 
 
     private void setPanelSize() {
@@ -39,6 +40,7 @@ public class GamePanel extends JPanel {
     {
 
     }
+
     public Game getGame(){
         return this.game;
     }
@@ -48,4 +50,5 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         game.render(g);
     }
+
 }

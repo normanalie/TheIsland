@@ -2,6 +2,8 @@ package org.example.GUI.gamestates;
 
 import org.example.GUI.mainGame.Game;
 import org.example.GUI.mainGame.Hexagon;
+import org.example.GUI.ui.TuileEffectOverlay;
+import org.example.Logic.Model.Pion;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -26,9 +28,32 @@ public class Playing extends State implements StateInterface {
     private float xDelta = 100, yDelta = 100;
     private boolean gridGenerated = false;
 
+    private boolean tuileSelected =false;
+    private Hexagon selectedHex;
+
+    private TuileEffectOverlay tuileEffectOverlay;
 
 
-    public Playing(Game game) {
+    public Hexagon getSelectedHex() {
+        return selectedHex;
+    }
+
+    public void setSelectedHex(Hexagon selectedHex) {
+        this.selectedHex = selectedHex;
+    }
+
+    public boolean isTuileSelected() {
+        return tuileSelected;
+    }
+
+    public void setTuileSelected(boolean tuileSelected) {
+        this.tuileSelected = tuileSelected;
+    }
+
+
+
+
+    public Playing(Game game) throws IOException {
         super(game);
         initClasses();
         loadImages();
@@ -76,10 +101,46 @@ public class Playing extends State implements StateInterface {
         }
     }
 
+    //pour avoir l'effet de la tuile tirée
+    private String getHexagonEffect(int effectValue){
+        switch (effectValue){
+            case 1:
+                return "greenshark";
+            case 2:
+                return "greenwhale";
+            case 3:
+                return "greenboat";
+            case 4:
+                return "tourbillon";
+            case 5:
+                return "volcano";
+            case 6:
+                return "daulphin";
+            case 7:
+                return "redboat";
+            case 8:
+                return "snake";
+            case 9:
+                return "redshark";
+            case 10:
+                return "redwhale";
+            case 11:
+                return "sharkdefense";
+            case 12:
+                return "whaledefense";
+            default:
+                return "none";
+        }
+    }
+
+
     @Override
     public void update() {
+        tuileEffectOverlay.update();
     }
-    private void initClasses() {
+
+    private void initClasses() throws IOException {
+        this.tuileEffectOverlay=new TuileEffectOverlay(this,this.game);
     }
 
     private void loadImages() {
@@ -122,17 +183,29 @@ public class Playing extends State implements StateInterface {
             hex.draw(g2d);
         }
 
+        if(isTuileSelected()){
+            System.out.println("drawing tuile\n");
+            tuileEffectOverlay.draw(g,selectedHex);
+        }
+
 
     }
 
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        /*------------*/
+        if(isTuileSelected()){
+            setTuileSelected(false);
+        }
+        /*------------*/
+
         int mouseX = e.getX();
         int mouseY = e.getY();
+        System.out.println("mouse clicked\n");
 
         for (Hexagon hex : hexagons) {
-            if (isPointInsideHexagon(mouseX, mouseY, hex) ) {
+            if (isPointInsideHexagon(mouseX, mouseY, hex) && !hex.isClicked() ) {
                 handleHexagonClick(hex);
                 break;
             }
@@ -144,8 +217,23 @@ public class Playing extends State implements StateInterface {
     }
 
     /// SHOULD CHANGE THIS LATER
+
+    /*------------*/
     private void handleHexagonClick(Hexagon hex) {
+        Color couleur=game.getCurrentPlayer().getColor();
+        System.out.println("current is : "+couleur+"\n");
+        //verif que le player possede un pion sur le hex
+        for(Pion P: hex.getListPion()){
+            if(P.getColor()==couleur){
+                setTuileSelected(true);
+                setSelectedHex(hex);
+                hex.setClicked(true);
+                game.nextTurn();
+                break;
+            }
+        }
     }
+    /*------------*/
 
 
 
@@ -164,6 +252,7 @@ public class Playing extends State implements StateInterface {
     public void mouseReleased(MouseEvent e) {
         // Handle mouse release event
     }
+
     public void setRectPos(int x, int y) {
         this.xDelta = x;
         this.yDelta = y;

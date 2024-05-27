@@ -40,6 +40,7 @@ public class PawnSelectionOverlay {
             e.printStackTrace();
         }
     }
+
     public void updatePawnsCollection(int index) {
         Player currentPlayer = game.getCurrentPlayer();
         int result = currentPlayer.updatePawnsCollection(index);
@@ -52,13 +53,18 @@ public class PawnSelectionOverlay {
     }
 
     public boolean getPawnSelected(){
+
         return this.pawnSelected;
+
     }
     public void setPawnSelected(Boolean pawnSelected){
+
       this.pawnSelected = pawnSelected;
+
     }
     public void update(){
     }
+    
     public void keyPressed(KeyEvent e) {
         if(pawnSelected == false){
         switch (e.getKeyCode()) {

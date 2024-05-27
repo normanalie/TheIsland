@@ -32,6 +32,7 @@ public class PionSelection extends State implements StateInterface {
 
 
     private PawnSelectionOverlay pawnSelectionOverlay;
+
     public PionSelection(Game game) {
         super(game);
         initClasses();
@@ -57,8 +58,9 @@ public class PionSelection extends State implements StateInterface {
             for (int col = 0; col < currentCols; col++) {
                 int x = startX + xOffset * col + (row % 2) * (xOffset / 2);
                 int y = startY + yOffset * row;
-                String type = getHexagonType(matrice.matrix[row][col]);
-                hexagons.add(new Hexagon(x, y, radius, type));
+                String type = getHexagonType(matrice.matrix[row][col].getType());
+                String effet=getHexagonEffect(matrice.matrix[row][col].getEffect());
+                hexagons.add(new Hexagon(x, y, radius, type,effet));
             }
         }
 
@@ -87,8 +89,8 @@ public class PionSelection extends State implements StateInterface {
         }
     }
 
-    private String getHexagonType(int matrixValue) {
-        switch (matrixValue) {
+    private String getHexagonType(int typeValue) {
+        switch (typeValue) {
             case 1:
                 return "land";
             case 2:
@@ -100,10 +102,45 @@ public class PionSelection extends State implements StateInterface {
         }
     }
 
+
+    //pour avoir l'effet de la tuile tirée
+    private String getHexagonEffect(int effectValue){
+        switch (effectValue){
+            case 1:
+                return "greenshark";
+            case 2:
+                return "greenwhale";
+            case 3:
+                return "greenboat";
+            case 4:
+                return "tourbillon";
+            case 5:
+                return "volcano";
+            case 6:
+                return "daulphin";
+            case 7:
+                return "redboat";
+            case 8:
+                return "snake";
+            case 9:
+                return "redshark";
+            case 10:
+                return "redwhale";
+            case 11:
+                return "sharkdefense";
+            case 12:
+                return "whaledefense";
+            default:
+                return "none";
+        }
+    }
+
     @Override
     public void update() {
+
         pawnSelectionOverlay.update();
     }
+
     private void initClasses() {
         this.pawnSelectionOverlay = new PawnSelectionOverlay(this,game);
     }
@@ -185,6 +222,7 @@ public class PionSelection extends State implements StateInterface {
             hex.addPawnToHexagon(new Pion(game.getCurrentPlayer().getColor(),1));
             return 1;
         }
+
         return 0;
 
     }
