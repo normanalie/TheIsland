@@ -1,9 +1,7 @@
 package org.example.GUI.mainGame;
 
+import org.example.GUI.gamestates.*;
 import org.example.Logic.Model.Player;
-import org.example.GUI.gamestates.GameState;
-import org.example.GUI.gamestates.PionSelection;
-import org.example.GUI.gamestates.Playing;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,10 +17,15 @@ public class Game implements Runnable {
     private final int UPS_SET = 200;
     public static final int GAME_WIDTH = 1200;
     public  static final int GAME_HEIGHT = 800;
+    public  static final int PLAYER_COUNT = 0;
     private Playing playing;
     private PionSelection pionSelection;
+    private BateauSelection bateauSelection;
+    private LancerDe lancerDe;
     private ArrayList<Player> players;
     private int currentPlayerIndex;
+    private MoveElement moveElement;
+
 
 
     public Game() {
@@ -35,10 +38,12 @@ public class Game implements Runnable {
     }
     private void initClasses() {
         pionSelection = new PionSelection(this);
+        bateauSelection = new BateauSelection(this);
+        lancerDe = new LancerDe(this);
         playing = new Playing(this);
-
+        moveElement = new MoveElement(this);
         players = new ArrayList<>(4);
-            Player P1 = new Player("Jhon",new int[]{3, 2, 2, 1, 1, 1},ROUGE);
+            Player P1 = new Player("¨Player1",new int[]{3, 2, 2, 1, 1, 1},ROUGE);
             Player P2 = new Player("Player2",new int[]{3, 2, 2, 1, 1, 1},BLEU);
             Player P3 = new Player("Player3",new int[]{3, 2, 2, 1, 1, 1},JAUNE);
             Player P4 = new Player("Player4",new int[]{3, 2, 2, 1, 1, 1},VERT);
@@ -49,18 +54,41 @@ public class Game implements Runnable {
 
         GameState.state = GameState.PIONS_SELECTION;
     }
-
+    public void startBateauSelection(){
+        bateauSelection.setHexagons(pionSelection.getHexagons());
+        GameState.state = GameState.BATEAU_SELECTION;
+    }
     public void startGame(){
         GameState.state = GameState.PLAYING;
         System.out.println("Game Started !!");
-        playing.setHexagons(pionSelection.getHexagons());
+        moveElement.setHexagons(bateauSelection.getHexagons());
     }
     public Player getCurrentPlayer() {
         return players.get(currentPlayerIndex);
     }
 
-    public void nextTurn() {
+    public void nextPlayerRound() {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+    }
+
+
+    //CHANGE LATER
+    public void nextTurn() {
+        switch (CurrentTurn.currentTurn){
+            case JOUER_TUILE :
+                break;
+            case DEPLACER_ELEMENT:
+                lancerDe.setHexagons(moveElement.getHexagons());
+                CurrentTurn.currentTurn = CurrentTurn.LANCER_DE;
+                break;
+            case RETIRER_TUILE:
+                break;
+            case LANCER_DE:
+                moveElement.setHexagons(lancerDe.getHexagons());
+                CurrentTurn.currentTurn = CurrentTurn.DEPLACER_ELEMENT;
+                break;
+
+        }
     }
     public GameState getCurrentState() {
         return GameState.state;
@@ -70,21 +98,42 @@ public class Game implements Runnable {
        GameState.state  = currentState;
     }
 
+    public MoveElement getMoveElement(){
+        return this.moveElement;
+    }
+
     public void render(Graphics g) {
         switch (GameState.state) {
             case PLAYING :
-                playing.draw(g);
+                switch (CurrentTurn.currentTurn){
+                    case DEPLACER_ELEMENT :
+                        moveElement.draw(g);
+                        break;
+                    case LANCER_DE:
+                        lancerDe.draw(g);
+                        break;
+                }
                 break;
             case MENU:
                 break;
             case PIONS_SELECTION:
                 pionSelection.draw(g);
                 break;
+            case BATEAU_SELECTION:
+                bateauSelection.draw(g);
+                break;
+
         }
     }
     private void startGameLoop() {
         gameThread = new Thread(this);
         gameThread.start();
+    }
+
+
+
+    public BateauSelection getBateauSelection() {
+        return bateauSelection;
     }
 
     public void update() {
@@ -95,13 +144,17 @@ public class Game implements Runnable {
                 break;
             case PIONS_SELECTION:
                 pionSelection.update();
-
+                break;
+            case BATEAU_SELECTION:
+                bateauSelection.update();
                 break;
         }
     }
     public PionSelection getPionSelection() {
         return pionSelection;
     }
+
+    public LancerDe getLancerDe(){return lancerDe;}
 
     @Override
     public void run() {
@@ -147,5 +200,6 @@ public class Game implements Runnable {
         }
 
     }
+
 
 }

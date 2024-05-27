@@ -58,6 +58,11 @@ public class Matrice {
         matrix[9][4] = 1;
         matrix[9][5] = 2 ;
         matrix[9][6] = 3 ;
+        matrix [1][0] = 4;
+        matrix [2][10] =4;
+        matrix[10][0] = 4;
+        matrix[11][9] = 4;
+        matrix[6][5] =4;
 
 
 

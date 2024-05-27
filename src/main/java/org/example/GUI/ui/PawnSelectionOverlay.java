@@ -1,5 +1,7 @@
 package org.example.GUI.ui;
 
+import org.example.GUI.gamestates.BateauSelection;
+import org.example.GUI.gamestates.GameState;
 import org.example.GUI.mainGame.Game;
 import org.example.Logic.Model.Player;
 import org.example.GUI.gamestates.PionSelection;
@@ -19,6 +21,7 @@ public class PawnSelectionOverlay {
     private BufferedImage pionsJaunes;
     private BufferedImage pionsBleus;
     private boolean pawnSelected;
+
     private Game game;
 
     public PawnSelectionOverlay(PionSelection pionSelection,Game game) {
@@ -45,9 +48,6 @@ public class PawnSelectionOverlay {
         int result = currentPlayer.updatePawnsCollection(index);
         if( result == 1) {
             pawnSelected = true;
-        }
-        else if(result == 0){
-            game.startGame();
         }
     }
 
@@ -98,26 +98,26 @@ public class PawnSelectionOverlay {
         switch (game.getCurrentPlayer().getColor()){
             case ROUGE:
                 if (pionsRouges != null) {
-                    g.drawImage(pionsRouges, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.4),
-                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 5, null);
+                    g.drawImage(pionsRouges, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.42),
+                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 7, null);
                 }
                 break;
             case BLEU:
                 if (pionsBleus != null) {
-                    g.drawImage(pionsBleus, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.4),
-                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 5, null);
+                    g.drawImage(pionsBleus, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.42),
+                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 7, null);
                 }
                 break;
             case VERT:
                 if (piosnVerts != null) {
-                    g.drawImage(piosnVerts, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.4),
-                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 5, null);
+                    g.drawImage(piosnVerts, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.42),
+                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 7, null);
                 }
                 break;
             case JAUNE:
                 if (pionsJaunes != null) {
-                    g.drawImage(pionsJaunes, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.4),
-                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 5, null);
+                    g.drawImage(pionsJaunes, Game.GAME_WIDTH / 3, (int) (Game.GAME_HEIGHT * 0.42),
+                            Game.GAME_WIDTH / 3, Game.GAME_HEIGHT / 7, null);
                 }
                 break;
         }

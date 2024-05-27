@@ -1,5 +1,7 @@
 package org.example.GUI.Inputs;
 
+import org.example.GUI.gamestates.CurrentTurn;
+import org.example.GUI.gamestates.GameState;
 import org.example.GUI.mainGame.GamePanel;
 
 import java.awt.event.MouseEvent;
@@ -23,23 +25,79 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        gamePanel.getGame().getPionSelection().mouseMoved(e);
+        switch (GameState.state) {
+            case PIONS_SELECTION:
+                gamePanel.getGame().getPionSelection().mouseMoved(e);
+                break;
+            case PLAYING:
+                switch (CurrentTurn.currentTurn) {
+
+                    case DEPLACER_ELEMENT:
+                        gamePanel.getGame().getMoveElement().mouseMoved(e);
+                        break;
+                    case LANCER_DE:
+                        gamePanel.getGame().getLancerDe().mouseMoved(e);
+                        break;
+                }
+            case BATEAU_SELECTION:
+                gamePanel.getGame().getBateauSelection().mouseMoved(e);
+                break;
+
+        }
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        gamePanel.getGame().getPionSelection().mouseClicked(e);
+        switch (GameState.state) {
+            case PIONS_SELECTION:
+                gamePanel.getGame().getPionSelection().mouseClicked(e);
+                break;
+            case PLAYING:
+                switch (CurrentTurn.currentTurn) {
+                    case DEPLACER_ELEMENT:
+                        gamePanel.getGame().getMoveElement().mouseClicked(e);
+                        break;
+                    case LANCER_DE:
+                        gamePanel.getGame().getLancerDe().mouseClicked(e);
+                        break;
+                }
+            case BATEAU_SELECTION:
+                gamePanel.getGame().getBateauSelection().mouseClicked(e);
+
+
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        switch (GameState.state) {
+            case PIONS_SELECTION:
+                gamePanel.getGame().getPionSelection().mousePressed(e);
+                break;
+            case PLAYING:
+                switch (CurrentTurn.currentTurn) {
+                    case DEPLACER_ELEMENT:
+                        gamePanel.getGame().getMoveElement().mousePressed(e);
+                        break;
+                }
 
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
 
+        switch (GameState.state) {
+            case PIONS_SELECTION:
+                gamePanel.getGame().getPionSelection().mouseReleased(e);
+                break;
+            case PLAYING:
+                switch (CurrentTurn.currentTurn) {
+                    case DEPLACER_ELEMENT:
+                        gamePanel.getGame().getMoveElement().mouseReleased(e);
+                        break;
+                }
+        }
     }
 
     @Override

@@ -2,8 +2,11 @@ package org.example.GUI.gamestates;
 
 import org.example.GUI.mainGame.Game;
 import org.example.GUI.mainGame.Hexagon;
+import org.example.Logic.Model.Bateau;
+import org.example.Logic.Model.Pion;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -13,17 +16,24 @@ import java.util.List;
 import static java.awt.geom.Point2D.distance;
 
 public class MoveElement extends State implements StateInterface {
+    private final int MAX_MOVES = 3;
+    private int moveCount = 0;
     private BufferedImage backgroundImage;
     private BufferedImage pionRougeImage;
     private BufferedImage pionBleuImage;
     private BufferedImage pionVertImage;
     private BufferedImage pionJauneImage;
 
+    private BufferedImage bateauImage;
     private List<Hexagon> hexagons;
     private final int radius = 40;
     private final int rows = 13;
     private final int cols = 7;
     private float xDelta = 100, yDelta = 100;
+
+    private Pion pionSelected = null;
+    private Bateau bateauSelected = null;
+
     private boolean gridGenerated = false;
 
 
@@ -40,42 +50,6 @@ public class MoveElement extends State implements StateInterface {
     }
 
 
-
-    private int getStartX(int row, int windowStart, int xOffset) {
-        if (row == 0 || row == rows - 1) {
-            return windowStart + xOffset * 2;
-        } else if (row == 5 || row == 7) {
-            return windowStart - xOffset;
-        } else {
-            return windowStart;
-        }
-    }
-
-    private int getCurrentCols(int row) {
-        if (row == 0 || row == rows - 1) {
-            return 7;
-        } else if (row == 5 || row == 7) {
-            return 12;
-        } else if (row % 2 == 0) {
-            return 11;
-        } else {
-            return 10;
-        }
-    }
-
-    private String getHexagonType(int matrixValue) {
-        switch (matrixValue) {
-            case 1:
-                return "land";
-            case 2:
-                return "forest";
-            case 3:
-                return "mountain";
-            default:
-                return "none";
-        }
-    }
-
     @Override
     public void update() {
     }
@@ -89,6 +63,8 @@ public class MoveElement extends State implements StateInterface {
             pionRougeImage = ImageIO.read(getClass().getResource("/pion_rouge.png"));
             pionVertImage = ImageIO.read(getClass().getResource("/pion_vert.png"));
             pionJauneImage = ImageIO.read(getClass().getResource("/pion_jaune.png"));
+            bateauImage = ImageIO.read(getClass().getResource("/jeton_bateau.png"));
+
 
         } catch (IOException e) {
             System.err.println("Error loading background image ");
@@ -121,10 +97,14 @@ public class MoveElement extends State implements StateInterface {
         for (Hexagon hex : hexagons) {
             hex.draw(g2d);
         }
-
-
+        BufferedImage pionImage = getPionImage();
+        if (pionSelected != null) {
+            g.drawImage(pionImage, (int) xDelta, (int) yDelta, pionImage.getWidth()/3, pionImage.getHeight()/3, null);
+        }
+        if (bateauSelected !=null){
+            g.drawImage(bateauImage, (int) xDelta, (int) yDelta, bateauImage.getWidth()/2, bateauImage.getHeight()/2, null);
+        }
     }
-
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -133,8 +113,14 @@ public class MoveElement extends State implements StateInterface {
 
         for (Hexagon hex : hexagons) {
             if (isPointInsideHexagon(mouseX, mouseY, hex) ) {
-                handleHexagonClick(hex);
-                break;
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    handleHexagonRightClick(hex);
+                    break;
+                }
+                else if (SwingUtilities.isLeftMouseButton(e)) {
+                    handleHexagonLeftClick(hex);
+                    break;
+                }
             }
         }
     }
@@ -144,15 +130,53 @@ public class MoveElement extends State implements StateInterface {
     }
 
     /// SHOULD CHANGE THIS LATER
-    private void handleHexagonClick(Hexagon hex) {
+    private void handleHexagonLeftClick(Hexagon hex) {
+        if(pionSelected == null) {
+            for (Pion pion : hex.getListPion()) {
+                if (pion.getColor() == game.getCurrentPlayer().getColor()) {
+                    pionSelected = pion;
+                    hex.getListPion().remove(pion);
+                    break;
+                }
+            }
+        }
+        else{
+                hex.addPawnToHexagon(pionSelected);
+                pionSelected = null;
+                moveCount++;
+                if(moveCount == MAX_MOVES){
+                        game.nextTurn();
+                        moveCount = 0;
+                }
+
+                }
+        }
+
+
+    private void handleHexagonRightClick(Hexagon hex) {
+        if(bateauSelected == null ){
+            if(hex.getBateau()!=null) {
+                bateauSelected = hex.getBateau();
+                hex.setBateau(null);
+            }
+        }
+        else{
+            hex.setBateau(bateauSelected);
+            bateauSelected = null;
+            moveCount++;
+            if(moveCount == MAX_MOVES){
+                game.nextTurn();
+                moveCount = 0;
+            }
+        }
     }
 
 
 
 
-    @Override
+        @Override
     public void mousePressed(MouseEvent e) {
-        // Handle mouse press event
+        this.setRectPos(e.getX(), e.getY());
     }
 
     public void mouseMoved(MouseEvent e){
@@ -162,12 +186,14 @@ public class MoveElement extends State implements StateInterface {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // Handle mouse release event
+
     }
     public void setRectPos(int x, int y) {
         this.xDelta = x;
         this.yDelta = y;
     }
-
+    public List<Hexagon> getHexagons(){
+        return this.hexagons;
+    }
 
 }

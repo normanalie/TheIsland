@@ -1,6 +1,6 @@
 package org.example.GUI.mainGame;
 
-import org.example.Logic.Model.Pion;
+import org.example.Logic.Model.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -20,9 +20,33 @@ public class Hexagon {
     private BufferedImage tuilePlage;
     private BufferedImage tuileForet;
     private BufferedImage tuileMontagne;
+    private BufferedImage serpentImage;
+    private BufferedImage baleineImage;
+    private BufferedImage requinImage;
     private ArrayList<Pion> pions;
+    private Bateau bateau;
+    private Requin requin;
+    private Serpent serpent;
+    private Baleine baleine;
+    private BufferedImage bateauImage;
 
     private Game game;
+
+    public void setBateau(Bateau bateau) {
+        this.bateau = bateau;
+    }
+
+    public Serpent getSerpent() {
+        return this.serpent;
+    }
+
+    public Baleine getBaleine() {
+        return this.baleine;
+    }
+
+    public Requin getRequin() {
+    return this.requin;
+    }
 
     public enum Type {
         LAND, FOREST, MOUNTAIN, NONE
@@ -35,7 +59,12 @@ public class Hexagon {
         this.type = Type.valueOf(type.toUpperCase());
         this.polygon = createHexagon(x, y, radius);
         this.pions = new ArrayList<Pion>();
+        bateau = null;
+        requin = null;
+        baleine = null;
+        serpent = null;
         loadImages();
+
     }
 
     private void loadImages() {
@@ -46,6 +75,10 @@ public class Hexagon {
         pionVertImage = loadImage("/pion_vert.png");
         pionJauneImage = loadImage("/pion_jaune.png");
         pionBleuImage = loadImage("/pion_bleu.png");
+        bateauImage = loadImage("/jeton_bateau.png");
+        requinImage = loadImage("/jeton_requin.png");
+        baleineImage = loadImage("/jeton_baleine.png");
+        serpentImage = loadImage("/jeton_serpent.png");
     }
 
     private BufferedImage loadImage(String imagePath) {
@@ -59,6 +92,10 @@ public class Hexagon {
 
     public ArrayList<Pion> getListPion(){
         return this.pions;
+    }
+
+    public Bateau getBateau() {
+        return this.bateau;
     }
 
     private Polygon createHexagon(int x, int y, int radius) {
@@ -77,10 +114,52 @@ public class Hexagon {
 
         drawImage(g, tuileImageToDraw);
         drawBorder(g);
-
-        // Draw pawns
         drawPawns(g);
+        drawBateau(g);
+        drawRequin(g);
+        drawBaleine(g);
+        drawSerpent(g);
     }
+
+
+    public void drawBateau(Graphics g) {
+        if (this.bateau != null) {
+            int imageWidth = bateauImage.getWidth()/2;
+            int imageHeight = bateauImage.getHeight()/2;
+            int drawX = x - imageWidth / 2;
+            int drawY = y - imageHeight / 2;
+            g.drawImage(bateauImage, drawX, drawY, imageWidth, imageHeight, null);
+            g.drawImage(bateauImage, drawX, drawY, imageWidth, imageHeight, null);
+        }
+    }
+    public void drawBaleine(Graphics g) {
+        if (this.baleine != null) {
+            int imageWidth = baleineImage.getWidth()/4;
+            int imageHeight = baleineImage.getHeight()/4;
+            int drawX = x - imageWidth / 2;
+            int drawY = y - imageHeight / 2;
+            g.drawImage(baleineImage, drawX, drawY, imageWidth, imageHeight, null);
+        }
+    }
+    public void drawRequin(Graphics g) {
+        if (this.requin != null) {
+            int imageWidth = requinImage.getWidth()/4;
+            int imageHeight = requinImage.getHeight()/4;
+            int drawX = x - imageWidth / 2;
+            int drawY = y - imageHeight / 2;
+            g.drawImage(requinImage, drawX, drawY, imageWidth, imageHeight, null);
+        }
+    }
+    public void drawSerpent(Graphics g) {
+        if (this.serpent != null) {
+            int imageWidth = serpentImage.getWidth()/4;
+            int imageHeight = serpentImage.getHeight()/4;
+            int drawX = x - imageWidth / 2;
+            int drawY = y - imageHeight / 2;
+            g.drawImage(serpentImage, drawX, drawY, imageWidth, imageHeight, null);
+        }
+    }
+
 
     private BufferedImage getTuileImageToDraw() {
         switch (type) {
@@ -95,19 +174,34 @@ public class Hexagon {
         }
     }
 
+    public void setSerpent(Serpent serpent) {
+        this.serpent = serpent;
+    }
+
+    public void setBaleine(Baleine baleine) {
+        this.baleine = baleine;
+    }
+
+    public void setRequin(Requin requin) {
+        this.requin = requin;
+    }
+
     private BufferedImage getPionImage(Pion pion) {
-        switch (pion.getColor()) {
-            case ROUGE:
-                return pionRougeImage;
-            case BLEU:
-                return pionBleuImage;
-            case VERT:
-                return pionVertImage;
-            case JAUNE:
-                return pionJauneImage;
-            default:
-                return null;
+        if(pion !=null) {
+            switch (pion.getColor()) {
+                case ROUGE:
+                    return pionRougeImage;
+                case BLEU:
+                    return pionBleuImage;
+                case VERT:
+                    return pionVertImage;
+                case JAUNE:
+                    return pionJauneImage;
+                default:
+                    return null;
+            }
         }
+        return null;
     }
 
     private void drawImage(Graphics2D g, BufferedImage image) {
@@ -153,21 +247,30 @@ public class Hexagon {
         pions.add(pion);
     }
     private void drawPawns(Graphics2D g) {
-        int offsetX = 0;
-        int offsetY = 0;
-        int step = 20;
+        int numPions = pions.size();
+        if (numPions == 0) {
+            return;
+        }
 
-        for (Pion pion : pions) {
+        double angleStep = 2 * Math.PI / numPions;
+        int circleRadius = radius / 3;
+
+        for (int i = 0; i < numPions; i++) {
+            Pion pion = pions.get(i);
             BufferedImage pionImage = getPionImage(pion);
             if (pionImage != null) {
-                g.drawImage(pionImage, this.x - pionImage.getWidth() / 2 - offsetX, this.y - pionImage.getHeight() / 2 - offsetY, null);
+                int imageWidth = pionImage.getWidth() / 4;
+                int imageHeight = pionImage.getHeight() / 4;
+
+                double angle = i * angleStep;
+                int drawX = (int) (x + circleRadius * Math.cos(angle) - imageWidth / 2);
+                int drawY = (int) (y + circleRadius * Math.sin(angle) - imageHeight / 2);
+
+                g.drawImage(pionImage, drawX, drawY, imageWidth, imageHeight, null);
             }
-            offsetX += step;
-            offsetY += step;
-            if (offsetX > radius) offsetX = 0;
-            if (offsetY > radius) offsetY = 0;
         }
     }
+
 
     public int getX() {
         return x;

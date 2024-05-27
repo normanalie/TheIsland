@@ -5,6 +5,7 @@ import org.example.GUI.mainGame.Hexagon;
 import org.example.GUI.mainGame.Matrice;
 import org.example.Logic.Model.Pion;
 import org.example.GUI.ui.PawnSelectionOverlay;
+import org.example.Logic.Model.Serpent;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -29,7 +30,8 @@ public class PionSelection extends State implements StateInterface {
     private final int cols = 7;
     private float xDelta = 100, yDelta = 100;
     private boolean gridGenerated = false;
-
+    private int pawnPlacedCount = 0;
+    private final int TOTAL_PAWNS = 40;
 
     private PawnSelectionOverlay pawnSelectionOverlay;
     public PionSelection(Game game) {
@@ -58,7 +60,14 @@ public class PionSelection extends State implements StateInterface {
                 int x = startX + xOffset * col + (row % 2) * (xOffset / 2);
                 int y = startY + yOffset * row;
                 String type = getHexagonType(matrice.matrix[row][col]);
-                hexagons.add(new Hexagon(x, y, radius, type));
+                if(matrice.matrix[row][col] == 4){
+                    Hexagon hex = new Hexagon(x,y,radius,type);
+                    hex.setSerpent(new Serpent());
+                    hexagons.add(hex);
+                }
+                else {
+                    hexagons.add(new Hexagon(x, y, radius, type));
+                }
             }
         }
 
@@ -153,7 +162,7 @@ public class PionSelection extends State implements StateInterface {
         }
         else {
             BufferedImage pionImage = getPionImage();
-            g.drawImage(pionImage, (int) xDelta, (int) yDelta, 40, 20, null);
+            g.drawImage(pionImage, (int) xDelta, (int) yDelta, pionImage.getWidth()/3, pionImage.getHeight()/3, null);
             }
 
         }
@@ -168,7 +177,7 @@ public class PionSelection extends State implements StateInterface {
             if (isPointInsideHexagon(mouseX, mouseY, hex) && pawnSelectionOverlay.getPawnSelected()) {
                 if(handleHexagonClick(hex) != 0) {
                     pawnSelectionOverlay.setPawnSelected(false);
-                    game.nextTurn();
+                    game.nextPlayerRound();
                     break;
                 }
             }
@@ -183,8 +192,15 @@ public class PionSelection extends State implements StateInterface {
     private int handleHexagonClick(Hexagon hex) {
         if(hex.getListPion().isEmpty()) {
             hex.addPawnToHexagon(new Pion(game.getCurrentPlayer().getColor(),1));
+            pawnPlacedCount++;
+            if(pawnPlacedCount == TOTAL_PAWNS)
+            {
+                game.startBateauSelection();
+            }
             return 1;
         }
+
+
         return 0;
 
     }

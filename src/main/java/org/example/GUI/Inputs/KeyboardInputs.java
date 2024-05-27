@@ -1,5 +1,6 @@
 package org.example.GUI.Inputs;
 
+import org.example.GUI.gamestates.CurrentTurn;
 import org.example.GUI.mainGame.GamePanel;
 import org.example.GUI.gamestates.GameState;
 
@@ -41,6 +42,8 @@ public class KeyboardInputs implements KeyListener {
                 break;
             case PLAYING:
                 break;
+            case BATEAU_SELECTION:
+                gamePanel.getGame().getBateauSelection().keyPressed(e);
         }
     }
 }
