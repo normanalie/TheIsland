@@ -160,7 +160,7 @@ public class Tile {
         if (pions.isEmpty()) {
             return null;
         }
-        return pions.get(0); // For simplicity, returning the first pion. Adjust as needed.
+        return pions.get(0); // Pour simplifier, retourner le premier pion. Ajustez selon les besoins.
     }
 
     public void removePion(Pion pion) {

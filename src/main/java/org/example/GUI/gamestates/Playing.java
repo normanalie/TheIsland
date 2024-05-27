@@ -24,6 +24,7 @@ public class Playing extends State implements StateInterface {
     private Dice dice;
     private int movesRemaining;
     private int xDelta, yDelta;
+    private boolean removeTileMode;
 
     public Playing(Game game, Board board) {
         super(game);
@@ -32,6 +33,7 @@ public class Playing extends State implements StateInterface {
         loadImages();
         dice = new Dice();
         movesRemaining = 3;
+        removeTileMode = false;
         System.out.println("Successfully init Playing Game");
     }
 
@@ -71,9 +73,8 @@ public class Playing extends State implements StateInterface {
     public void update() {
         // Update the game state here
         // Check if the player's turn is complete and move to the next player
-        if (movesRemaining <= 0) {
-            game.nextTurn();
-            movesRemaining = 3; // Reset moves for the next player
+        if (movesRemaining <= 0 && !removeTileMode) {
+            enableTileRemoval();
         }
     }
 
@@ -123,7 +124,11 @@ public class Playing extends State implements StateInterface {
             for (int col = 0; col < board.getTiles()[0].length; col++) {
                 Tile hex = board.getTile(row, col);
                 if (hex != null && isPointInsideHexagon(mouseX, mouseY, hex)) {
-                    handleHexagonClick(hex);
+                    if (removeTileMode) {
+                        handleTileRemoval(hex);
+                    } else {
+                        handleHexagonClick(hex);
+                    }
                     break;
                 }
             }
@@ -154,8 +159,7 @@ public class Playing extends State implements StateInterface {
                 selectedTile = null; // Deselect the tile after moving the piece
 
                 if (movesRemaining <= 0) {
-                    game.nextTurn();
-                    movesRemaining = 3; // Reset moves for the next player
+                    enableTileRemoval();
                 }
             } else {
                 // If the selected destination is not valid, deselect the current tile
@@ -210,13 +214,10 @@ public class Playing extends State implements StateInterface {
     private int calculateDistance(Tile fromTile, Tile toTile) {
         // Implement logic to calculate the distance between two tiles
         // Here we use the Manhattan distance for simplicity
-        // TODO Fix calculation that return 3 when the distance is 2 sometimes.
         int dx = Math.abs(fromTile.getX() - toTile.getX());
         int dy = Math.abs(fromTile.getY() - toTile.getY());
-        int distance = (dx + dy) / radius; // Adjust calculation as needed based on your game logic
-        return distance;
+        return (dx + dy) / radius; // Adjust calculation as needed based on your game logic
     }
-
 
     private boolean isValidMove(Tile fromTile, Tile toTile) {
         // Implement the logic to check if the move is valid
@@ -226,6 +227,108 @@ public class Playing extends State implements StateInterface {
         }
         int distance = calculateDistance(fromTile, toTile);
         return distance <= movesRemaining && toTile.getType() != TileType.MOUNTAIN;
+    }
+
+    private void enableTileRemoval() {
+        removeTileMode = true;
+        // Indiquer à l'utilisateur qu'il doit maintenant retirer une tuile
+        System.out.println("Remove a tile adjacent to sea before ending your turn.");
+    }
+
+    private void handleTileRemoval(Tile tile) {
+        if (canRemoveTile(tile)) {
+            removeTile(tile);
+            removeTileMode = false; // Désactiver le mode de suppression des tuiles après la suppression
+            game.nextTurn(); // Passer au tour du joueur suivant
+            movesRemaining = 3; // Réinitialiser les mouvements pour le prochain joueur
+        }
+    }
+
+    private boolean canRemoveTile(Tile tile) {
+        return true;
+        // TODO
+        // Vérifier si la tuile est adjacente à une case de mer
+        // Vérifier l'ordre de suppression (plage, forêt, montagne)
+    }
+
+    private boolean isAdjacentToSea(Tile tile) {
+        int x = tile.getX();
+        int y = tile.getY();
+        Tile[][] tiles = board.getTiles();
+
+        // Taille d'une tuile
+        int tileWidth = 2 * radius;
+        int tileHeight = (int) (Math.sqrt(3) * radius);
+
+        // Vérifier les tuiles adjacentes
+        int[][] directions = {
+                {tileWidth, 0}, {-tileWidth, 0}, // Droite, Gauche
+                {tileWidth / 2, tileHeight}, {-tileWidth / 2, tileHeight}, // Bas Droite, Bas Gauche
+                {tileWidth / 2, -tileHeight}, {-tileWidth / 2, -tileHeight} // Haut Droite, Haut Gauche
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+            Tile adjacentTile = getTileByCoordinates(newX, newY);
+            if (adjacentTile != null && adjacentTile.getType() == TileType.NONE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Tile getTileByCoordinates(int x, int y) {
+        for (int row = 0; row < board.getTiles().length; row++) {
+            for (int col = 0; col < board.getTiles()[0].length; col++) {
+                Tile tile = board.getTile(row, col);
+                if (tile != null && tile.getX() == x && tile.getY() == y) {
+                    return tile;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    private boolean isValidRemovalOrder(Tile tile) {
+        // Implement the logic to check the removal order: beach -> forest -> mountain
+        TileType type = tile.getType();
+        if (type == TileType.LAND) {
+            return true;
+        } else if (type == TileType.FOREST) {
+            // Check if no beach tiles are left
+            for (int row = 0; row < board.getTiles().length; row++) {
+                for (int col = 0; col < board.getTiles()[0].length; col++) {
+                    Tile t = board.getTile(row, col);
+                    if (t != null && t.getType() == TileType.LAND) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } else if (type == TileType.MOUNTAIN) {
+            // Check if no beach or forest tiles are left
+            for (int row = 0; row < board.getTiles().length; row++) {
+                for (int col = 0; col < board.getTiles()[0].length; col++) {
+                    Tile t = board.getTile(row, col);
+                    if (t != null && (t.getType() == TileType.LAND || t.getType() == TileType.FOREST)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void removeTile(Tile tile) {
+        if (tile.getPion() != null) {
+            // Si un explorateur se trouvait sur la tuile, il devient nageur
+            tile.getPion().setNageur(true);
+        }
+        board.removeTile(tile.getX(), tile.getY());
     }
 
     @Override

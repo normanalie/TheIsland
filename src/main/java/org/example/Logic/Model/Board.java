@@ -41,8 +41,16 @@ public class Board {
         tiles[row][col] = tile;
     }
 
-    public void removeTile(int row, int col) {
-        tiles[row][col] = null;
+    public void removeTile(int x, int y) {
+        for (int row = 0; row < tiles.length; row++) {
+            for (int col = 0; col < tiles[0].length; col++) {
+                Tile tile = tiles[row][col];
+                if (tile != null && tile.getX() == x && tile.getY() == y) {
+                    tiles[row][col] = null;
+                    return;
+                }
+            }
+        }
     }
 
     public void moveBoat(Boat boat, int row, int col) {
