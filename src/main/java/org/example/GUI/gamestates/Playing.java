@@ -70,6 +70,11 @@ public class Playing extends State implements StateInterface {
     @Override
     public void update() {
         // Update the game state here
+        // Check if the player's turn is complete and move to the next player
+        if (movesRemaining <= 0) {
+            game.nextTurn();
+            movesRemaining = 3; // Reset moves for the next player
+        }
     }
 
     @Override
@@ -132,18 +137,32 @@ public class Playing extends State implements StateInterface {
 
     private void handleHexagonClick(Tile hex) {
         if (selectedTile == null) {
-            // Select the tile
-            selectedTile = hex;
-            selectedTile.setSelected(true);
-            highlightValidDestinations(selectedTile);
+            // Check if the tile has a pawn and if it belongs to the current player
+            Pion pion = hex.getPion();
+            if (pion != null && pion.getColor() == game.getCurrentPlayer().getColor()) {
+                // Select the tile
+                selectedTile = hex;
+                selectedTile.setSelected(true);
+                highlightValidDestinations(selectedTile);
+            }
         } else {
             // Move the piece from selectedTile to hex
             if (hex.isValidDestination()) {
                 movePiece(selectedTile, hex);
+                clearHighlights();
+                selectedTile.setSelected(false);
+                selectedTile = null; // Deselect the tile after moving the piece
+
+                if (movesRemaining <= 0) {
+                    game.nextTurn();
+                    movesRemaining = 3; // Reset moves for the next player
+                }
+            } else {
+                // If the selected destination is not valid, deselect the current tile
+                selectedTile.setSelected(false);
+                selectedTile = null;
+                clearHighlights();
             }
-            clearHighlights();
-            selectedTile.setSelected(false);
-            selectedTile = null; // Deselect the tile after moving the piece
         }
     }
 
@@ -189,9 +208,15 @@ public class Playing extends State implements StateInterface {
     }
 
     private int calculateDistance(Tile fromTile, Tile toTile) {
-        // TODO
-        return 1;
+        // Implement logic to calculate the distance between two tiles
+        // Here we use the Manhattan distance for simplicity
+        // TODO Fix calculation that return 3 when the distance is 2 sometimes.
+        int dx = Math.abs(fromTile.getX() - toTile.getX());
+        int dy = Math.abs(fromTile.getY() - toTile.getY());
+        int distance = (dx + dy) / radius; // Adjust calculation as needed based on your game logic
+        return distance;
     }
+
 
     private boolean isValidMove(Tile fromTile, Tile toTile) {
         // Implement the logic to check if the move is valid

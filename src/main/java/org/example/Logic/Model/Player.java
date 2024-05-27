@@ -1,6 +1,7 @@
 package org.example.Logic.Model;
 
 import org.example.GUI.gamestates.Color;
+import org.example.GUI.mainGame.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +51,12 @@ public class Player {
         }
     }
 
-    public void takeTurn(Board board, Dice dice) {
+    public void takeTurn(Board board, Dice dice, Game game) {
         playTile(board);
         // movePiece(board); // This will now be handled by the Playing class
         removeTile(board);
         rollDieAndMoveCreature(board, dice);
+        game.nextTurn(); // Move to the next player's turn
     }
 
     private void playTile(Board board) {
