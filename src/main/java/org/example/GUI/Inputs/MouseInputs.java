@@ -1,11 +1,11 @@
 package org.example.GUI.Inputs;
 
+import org.example.GUI.gamestates.GameState;
 import org.example.GUI.mainGame.GamePanel;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-
 
 public class MouseInputs implements MouseListener, MouseMotionListener {
 
@@ -23,12 +23,20 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        gamePanel.getGame().getPionSelection().mouseMoved(e);
+        if (gamePanel.getGame().getCurrentState() == GameState.PIONS_SELECTION) {
+            gamePanel.getGame().getPionSelection().mouseMoved(e);
+        } else if (gamePanel.getGame().getCurrentState() == GameState.PLAYING) {
+            gamePanel.getGame().getPlaying().mouseMoved(e);
+        }
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        gamePanel.getGame().getPionSelection().mouseClicked(e);
+        if (gamePanel.getGame().getCurrentState() == GameState.PIONS_SELECTION) {
+            gamePanel.getGame().getPionSelection().mouseClicked(e);
+        } else if (gamePanel.getGame().getCurrentState() == GameState.PLAYING) {
+            gamePanel.getGame().getPlaying().mouseClicked(e);
+        }
     }
 
     @Override
@@ -53,5 +61,4 @@ public class MouseInputs implements MouseListener, MouseMotionListener {
         // TODO Auto-generated method stub
 
     }
-
 }
