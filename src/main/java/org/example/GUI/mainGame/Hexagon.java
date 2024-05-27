@@ -12,6 +12,7 @@ public class Hexagon {
     private int x, y, radius;
     private Polygon polygon;
     private Type type;
+    private Effect effet;//effet de la tuile (pile)
     private BufferedImage pionRougeImage;
     private BufferedImage pionJauneImage;
     private BufferedImage pionVertImage;
@@ -22,17 +23,43 @@ public class Hexagon {
     private BufferedImage tuileMontagne;
     private ArrayList<Pion> pions;
 
+    private boolean isClicked;
     private Game game;
 
     public enum Type {
         LAND, FOREST, MOUNTAIN, NONE
     }
 
-    public Hexagon(int x, int y, int radius, String type) {
+    //la pile de la tuile
+    public enum Effect{
+        GREENSHARK,GREENWHALE,GREENBOAT,TOURBILLON,VOLCANO,
+        DAULPHIN,REDBOAT,SNAKE,REDSHARK,REDWHALE,
+        SHARKDEFENSE,WHALEDEFENSE,
+        NONE
+    }
+
+    public Effect getEffet() {
+        return effet;
+    }
+
+    public boolean isClicked() {
+        return isClicked;
+    }
+
+    public void setClicked(boolean clicked) {
+        isClicked = clicked;
+    }
+
+    public Hexagon(int x, int y, int radius, String type, String effet) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.type = Type.valueOf(type.toUpperCase());
+        this.setClicked(false);
+
+        //pour definir l'effet à partir de l'initialisation aussi
+        this.effet=Effect.valueOf(effet.toUpperCase());
+
         this.polygon = createHexagon(x, y, radius);
         this.pions = new ArrayList<Pion>();
         loadImages();
@@ -73,9 +100,11 @@ public class Hexagon {
     }
 
     public void draw(Graphics2D g) {
-        BufferedImage tuileImageToDraw = getTuileImageToDraw();
+        if(!this.isClicked()){
+            BufferedImage tuileImageToDraw = getTuileImageToDraw();
+            drawImage(g, tuileImageToDraw);
+        }
 
-        drawImage(g, tuileImageToDraw);
         drawBorder(g);
 
         // Draw pawns
@@ -150,8 +179,10 @@ public class Hexagon {
     }
 
     public void addPawnToHexagon(Pion pion) {
+
         pions.add(pion);
     }
+
     private void drawPawns(Graphics2D g) {
         int offsetX = 0;
         int offsetY = 0;
@@ -170,10 +201,12 @@ public class Hexagon {
     }
 
     public int getX() {
+
         return x;
     }
 
     public int getY() {
+
         return y;
     }
 }
